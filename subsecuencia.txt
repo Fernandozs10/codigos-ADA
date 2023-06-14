@@ -1,0 +1,80 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+// Función para encontrar la longitud de la subsecuencia común más larga
+int longitudLCS(const string& cadena1, const string& cadena2) {
+    int m = cadena1.length();
+    int n = cadena2.length();
+
+    // Crear una matriz para almacenar los resultados intermedios
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+
+    // Calcular la longitud de la subsecuencia común más larga
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (cadena1[i - 1] == cadena2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+
+    // El resultado se encuentra en la esquina inferior derecha de la matriz dp
+    return dp[m][n];
+}
+
+// Función para encontrar la subsecuencia común más larga
+string LCS(const string& cadena1, const string& cadena2) {
+    int m = cadena1.length();
+    int n = cadena2.length();
+
+    // Crear una matriz para almacenar los resultados intermedios
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+
+    // Calcular la longitud de la subsecuencia común más larga
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (cadena1[i - 1] == cadena2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+    }
+
+    // Reconstruir la subsecuencia común más larga
+    int len = dp[m][n];
+    string subsecuencia(len, ' ');
+
+    int i = m, j = n;
+    while (i > 0 && j > 0) {
+        if (cadena1[i - 1] == cadena2[j - 1]) {
+            subsecuencia[len - 1] = cadena1[i - 1];
+            i--;
+            j--;
+            len--;
+        } else if (dp[i - 1][j] > dp[i][j - 1]) {
+            i--;
+        } else {
+            j--;
+        }
+    }
+
+    return subsecuencia;
+}
+
+int main() {
+    string cadena1 = "ABCBDAB";
+    string cadena2 = "BDCAB";
+
+    int longitud = longitudLCS(cadena1, cadena2);
+    string subsecuencia = LCS(cadena1, cadena2);
+
+    cout << "Longitud de la subsecuencia común más larga: " << longitud << endl;
+    cout << "Subsecuencia común más larga: " << subsecuencia << endl;
+
+    return 0;
+}

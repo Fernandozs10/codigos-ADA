@@ -1,0 +1,62 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+double calcularGanancia(const vector<int>& clientes, const vector<int>& tiempos) {
+    double ganancia = 0.0;
+    double propinaTotal = 0.0;
+
+    for (int i = 0; i < clientes.size(); i++) {
+        double propina = 1.0 / tiempos[clientes[i]];
+        ganancia += propina;
+        propinaTotal += propina;
+    }
+
+    return ganancia;
+}
+
+void permutarClientes(vector<int>& clientes, const vector<int>& tiempos, double& maxGanancia, vector<int>& mejorOrden, int inicio) {
+    if (inicio == clientes.size()) {
+        double ganancia = calcularGanancia(clientes, tiempos);
+
+        if (ganancia > maxGanancia) {
+            maxGanancia = ganancia;
+            mejorOrden = clientes;
+        }
+    } else {
+        for (int i = inicio; i < clientes.size(); i++) {
+            swap(clientes[inicio], clientes[i]);
+            permutarClientes(clientes, tiempos, maxGanancia, mejorOrden, inicio + 1);
+            swap(clientes[inicio], clientes[i]); // Deshacer el intercambio para la siguiente iteración
+        }
+    }
+}
+
+vector<int> obtenerOrdenOptimo(const vector<int>& tiempos) {
+    vector<int> clientes(tiempos.size());
+    vector<int> mejorOrden;
+    double maxGanancia = 0.0;
+
+    for (int i = 0; i < tiempos.size(); i++) {
+        clientes[i] = i;
+    }
+
+    permutarClientes(clientes, tiempos, maxGanancia, mejorOrden, 0);
+
+    return mejorOrden;
+}
+
+int main() {
+    vector<int> tiempos = {10, 5, 6};
+
+    vector<int> ordenOptimo = obtenerOrdenOptimo(tiempos);
+
+    cout << "Orden óptimo para maximizar las ganancias del camarero:\n";
+    for (int cliente : ordenOptimo) {
+        cout << "Cliente " << cliente + 1 << endl;
+    }
+
+    return 0;
+}

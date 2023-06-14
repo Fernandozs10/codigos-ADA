@@ -1,0 +1,77 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+using namespace std;
+
+#define INF numeric_limits<int>::max()
+
+struct Arista {
+    int origen;
+    int destino;
+    int peso;
+};
+
+// Función para encontrar el camino más corto desde el vértice fuente a todos los demás vértices
+void bellmanFord(vector<Arista>& aristas, int numVertices, int fuente) {
+    int numAristas = aristas.size();
+
+    // Inicializar las distancias con infinito excepto la fuente
+    vector<int> distancias(numVertices, INF);
+    distancias[fuente] = 0;
+
+    // Relajar las aristas repetidamente
+    for (int i = 1; i < numVertices; i++) {
+        for (int j = 0; j < numAristas; j++) {
+            int u = aristas[j].origen;
+            int v = aristas[j].destino;
+            int peso = aristas[j].peso;
+
+            if (distancias[u] != INF && distancias[u] + peso < distancias[v]) {
+                distancias[v] = distancias[u] + peso;
+            }
+        }
+    }
+
+    // Verificar si hay ciclos de peso negativo
+    for (int i = 0; i < numAristas; i++) {
+        int u = aristas[i].origen;
+        int v = aristas[i].destino;
+        int peso = aristas[i].peso;
+
+        if (distancias[u] != INF && distancias[u] + peso < distancias[v]) {
+            cout << "El grafo contiene ciclos de peso negativo" << endl;
+            return;
+        }
+    }
+
+    // Imprimir las distancias mínimas
+    cout << "Distancias mínimas desde el vértice fuente " << fuente << ":" << endl;
+    for (int i = 0; i < numVertices; i++) {
+        cout << "Vértice " << i << ": ";
+        if (distancias[i] == INF) {
+            cout << "INF" << endl;
+        } else {
+            cout << distancias[i] << endl;
+        }
+    }
+}
+
+int main() {
+    int numVertices = 5; // Número de vértices
+    int fuente = 0; // Vértice fuente
+
+    vector<Arista> aristas = {
+        {0, 1, -1},
+        {0, 2, 4},
+        {1, 2, 3},
+        {1, 3, 2},
+        {1, 4, 2},
+        {3, 2, 5},
+        {3, 1, 1},
+        {4, 3, -3}
+    };
+
+    bellmanFord(aristas, numVertices, fuente);
+
+    return 0;
+}

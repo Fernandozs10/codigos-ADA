@@ -1,0 +1,137 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// Función para sumar dos matrices
+vector<vector<int>> sumarMatrices(const vector<vector<int>>& A, const vector<vector<int>>& B) {
+    int n = A.size();
+    vector<vector<int>> resultado(n, vector<int>(n, 0));
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            resultado[i][j] = A[i][j] + B[i][j];
+        }
+    }
+
+    return resultado;
+}
+
+// Función para restar dos matrices
+vector<vector<int>> restarMatrices(const vector<vector<int>>& A, const vector<vector<int>>& B) {
+    int n = A.size();
+    vector<vector<int>> resultado(n, vector<int>(n, 0));
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            resultado[i][j] = A[i][j] - B[i][j];
+        }
+    }
+
+    return resultado;
+}
+
+// Función para dividir una matriz en cuatro submatrices de igual tamaño
+void dividirMatriz(const vector<vector<int>>& matriz, vector<vector<int>>& A, vector<vector<int>>& B, vector<vector<int>>& C, vector<vector<int>>& D) {
+    int n = matriz.size();
+    int mitad = n / 2;
+
+    for (int i = 0; i < mitad; i++) {
+        for (int j = 0; j < mitad; j++) {
+            A[i][j] = matriz[i][j];
+            B[i][j] = matriz[i][j + mitad];
+            C[i][j] = matriz[i + mitad][j];
+            D[i][j] = matriz[i + mitad][j + mitad];
+        }
+    }
+}
+
+// Función para combinar cuatro submatrices en una matriz resultante
+void combinarMatriz(vector<vector<int>>& matriz, const vector<vector<int>>& A, const vector<vector<int>>& B, const vector<vector<int>>& C, const vector<vector<int>>& D) {
+    int n = matriz.size();
+    int mitad = n / 2;
+
+    for (int i = 0; i < mitad; i++) {
+        for (int j = 0; j < mitad; j++) {
+            matriz[i][j] = A[i][j];
+            matriz[i][j + mitad] = B[i][j];
+            matriz[i + mitad][j] = C[i][j];
+            matriz[i + mitad][j + mitad] = D[i][j];
+        }
+    }
+}
+
+// Función para multiplicar dos matrices utilizando el algoritmo de Strassen
+vector<vector<int>> strassen(const vector<vector<int>>& A, const vector<vector<int>>& B) {
+    int n = A.size();
+    vector<vector<int>> resultado(n, vector<int>(n, 0));
+
+    // Caso base: Si las matrices son de tamaño 1x1, simplemente multiplicar los elementos
+    if (n == 1) {
+        resultado[0][0] = A[0][0] * B[0][0];
+        return resultado;
+    }
+
+    // Dividir las matrices en submatrices
+    int mitad = n / 2;
+    vector<vector<int>> A11(mitad, vector<int>(mitad));
+    vector<vector<int>> A12(mitad, vector<int>(mitad));
+    vector<vector<int>> A21(mitad, vector<int>(mitad));
+    vector<vector<int>> A22(mitad, vector<int>(mitad));
+    vector<vector<int>> B11(mitad, vector<int>(mitad));
+    vector<vector<int>> B12(mitad, vector<int>(mitad));
+    vector<vector<int>> B21(mitad, vector<int>(mitad));
+    vector<vector<int>> B22(mitad, vector<int>(mitad));
+
+    dividirMatriz(A, A11, A12, A21, A22);
+    dividirMatriz(B, B11, B12, B21, B22);
+
+    // Calcular las siete multiplicaciones recursivas
+    vector<vector<int>> P1 = strassen(A11, restarMatrices(B12, B22));
+    vector<vector<int>> P2 = strassen(sumarMatrices(A11, A12), B22);
+    vector<vector<int>> P3 = strassen(sumarMatrices(A21, A22), B11);
+    vector<vector<int>> P4 = strassen(A22, restarMatrices(B21, B11));
+    vector<vector<int>> P5 = strassen(sumarMatrices(A11, A22), sumarMatrices(B11, B22));
+    vector<vector<int>> P6 = strassen(restarMatrices(A12, A22), sumarMatrices(B21, B22));
+    vector<vector<int>> P7 = strassen(restarMatrices(A11, A21), sumarMatrices(B11, B12));
+
+    // Calcular las cuatro submatrices del resultado
+    vector<vector<int>> C11 = restarMatrices(sumarMatrices(sumarMatrices(P5, P4), P6), P2);
+    vector<vector<int>> C12 = sumarMatrices(P1, P2);
+    vector<vector<int>> C21 = sumarMatrices(P3, P4);
+    vector<vector<int>> C22 = restarMatrices(restarMatrices(sumarMatrices(P5, P1), P3), P7);
+
+    // Combinar las cuatro submatrices en una matriz resultante
+    combinarMatriz(resultado, C11, C12, C21, C22);
+
+    return resultado;
+}
+
+// Función para imprimir una matriz
+void imprimirMatriz(const vector<vector<int>>& matriz) {
+    int n = matriz.size();
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cout << matriz[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    vector<vector<int>> A = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
+    vector<vector<int>> B = {{9, 8, 7}, {6, 5, 4}, {3, 2, 1}};
+
+    cout << "Matriz A:" << endl;
+    imprimirMatriz(A);
+
+    cout << "Matriz B:" << endl;
+    imprimirMatriz(B);
+
+    vector<vector<int>> C = strassen(A, B);
+
+    cout << "Matriz C (Resultado de la multiplicación):" << endl;
+    imprimirMatriz(C);
+
+    return 0;
+}

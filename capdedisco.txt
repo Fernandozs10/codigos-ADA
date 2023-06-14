@@ -1,0 +1,49 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Programa {
+    int id;
+    int requerimientoEspacio;
+};
+
+bool compararPorEspacio(const Programa& p1, const Programa& p2) {
+    return p1.requerimientoEspacio < p2.requerimientoEspacio;
+}
+
+int maximizarProgramas(vector<Programa>& programas, int capacidadDisco) {
+    sort(programas.begin(), programas.end(), compararPorEspacio);
+
+    int espacioDisponible = capacidadDisco;
+    int programasAlmacenados = 0;
+
+    for (int i = 0; i < programas.size(); i++) {
+        if (programas[i].requerimientoEspacio <= espacioDisponible) {
+            espacioDisponible -= programas[i].requerimientoEspacio;
+            programasAlmacenados++;
+        } else {
+            break;
+        }
+    }
+
+    return programasAlmacenados;
+}
+
+int main() {
+    vector<Programa> programas = {
+        {1, 50},
+        {2, 30},
+        {3, 20},
+        {4, 40},
+        {5, 10}
+    };
+
+    int capacidadDisco = 100;
+
+    int cantidadProgramasAlmacenados = maximizarProgramas(programas, capacidadDisco);
+
+    cout << "Cantidad de programas almacenados: " << cantidadProgramasAlmacenados << endl;
+
+    return 0;
+}

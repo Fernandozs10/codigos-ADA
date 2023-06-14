@@ -1,0 +1,33 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+int maximizarContenedores(vector<int>& contenedores, int capacidadBuque) {
+    sort(contenedores.begin(), contenedores.end());
+
+    int capacidadRestante = capacidadBuque;
+    int contenedoresCargados = 0;
+
+    for (int i = 0; i < contenedores.size(); i++) {
+        if (contenedores[i] <= capacidadRestante) {
+            capacidadRestante -= contenedores[i];
+            contenedoresCargados++;
+        } else {
+            break;
+        }
+    }
+
+    return contenedoresCargados;
+}
+
+int main() {
+    vector<int> contenedores = {10, 20, 30, 15, 25};
+    int capacidadBuque = 50;
+
+    int numContenedoresCargados = maximizarContenedores(contenedores, capacidadBuque);
+
+    cout << "Número de contenedores cargados: " << numContenedoresCargados << endl;
+
+    return 0;
+}

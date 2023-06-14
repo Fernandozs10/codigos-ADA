@@ -1,0 +1,35 @@
+#include<iostream>
+using namespace std;
+#include <ctime>
+int main()
+{
+    const int tamanio = 1000, MAXIMO = 100000;
+    int arreglo[tamanio] = { 0 };
+    int i;
+    for (i = 0; i < tamanio; ++i)
+        arreglo[i] = rand() % MAXIMO;
+    int n = sizeof(arreglo) / sizeof(arreglo[0]);
+    unsigned t0, t1;
+    t0 = clock();
+    int p, j;
+
+    int flag = 1;
+    for (p = 0; p < n - 1 && flag == 1; p++)
+    {
+        flag = 0;
+        for (j = 0; j < n - p - 1; j++)
+        {
+            if (arreglo[j] > arreglo[j + 1])
+            {
+                int temp = arreglo[j];
+                arreglo[j] = arreglo[j + 1];
+                arreglo[j + 1] = temp;
+                flag = 1;
+            }
+        }
+    }
+    t1 = clock();
+    double time = (double(t1 - t0) / CLOCKS_PER_SEC);
+    cout << "Execution Time: " << time << endl;
+
+    return 0;

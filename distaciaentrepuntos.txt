@@ -1,0 +1,80 @@
+#include <iostream>
+#include <cmath>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Point {
+    double x, y;
+};
+
+bool compareByX(const Point& a, const Point& b) {
+    return a.x < b.x;
+}
+
+bool compareByY(const Point& a, const Point& b) {
+    return a.y < b.y;
+}
+
+double distance(const Point& a, const Point& b) {
+    double dx = a.x - b.x;
+    double dy = a.y - b.y;
+    return sqrt(dx * dx + dy * dy);
+}
+
+double bruteForce(vector<Point>& points, int left, int right) {
+    double minDist = numeric_limits<double>::max();
+    for (int i = left; i <= right; ++i) {
+        for (int j = i + 1; j <= right; ++j) {
+            double dist = distance(points[i], points[j]);
+            minDist = min(minDist, dist);
+        }
+    }
+    return minDist;
+}
+
+double stripClosest(vector<Point>& strip, double minDist) {
+    sort(strip.begin(), strip.end(), compareByY);
+    double minStripDist = minDist;
+    int size = strip.size();
+    for (int i = 0; i < size; ++i) {
+        for (int j = i + 1; j < size && (strip[j].y - strip[i].y) < minStripDist; ++j) {
+            double dist = distance(strip[i], strip[j]);
+            minStripDist = min(minStripDist, dist);
+        }
+    }
+    return minStripDist;
+}
+
+double closestUtil(vector<Point>& points, int left, int right) {
+    if (right - left <= 3) {
+        return bruteForce(points, left, right);
+    }
+    int mid = (left + right) / 2;
+    Point midPoint = points[mid];
+    double distLeft = closestUtil(points, left, mid);
+    double distRight = closestUtil(points, mid + 1, right);
+    double minDist = min(distLeft, distRight);
+
+    vector<Point> strip;
+    for (int i = left; i <= right; ++i) {
+        if (abs(points[i].x - midPoint.x) < minDist) {
+            strip.push_back(points[i]);
+        }
+    }
+    double stripDist = stripClosest(strip, minDist);
+    return min(minDist, stripDist);
+}
+
+double closestPoints(vector<Point>& points) {
+    sort(points.begin(), points.end(), compareByX);
+    return closestUtil(points, 0, points.size() - 1);
+}
+
+int main() {
+    vector<Point> points = {{2, 3}, {12, 30}, {40, 50}, {5, 1}, {12, 10}, {3, 4}};
+    double minDist = closestPoints(points);
+    cout << "La distancia más cercana entre dos puntos es: " << minDist << endl;
+
+    return 0;
+}

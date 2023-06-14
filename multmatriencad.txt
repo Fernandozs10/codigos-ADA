@@ -1,0 +1,41 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+using namespace std;
+
+// Función para realizar la multiplicación encadenada de matrices
+int multiplicacionEncadenada(const vector<int>& dimensiones) {
+    int n = dimensiones.size() - 1; // Número de matrices
+    vector<vector<int>> dp(n, vector<int>(n, numeric_limits<int>::max())); // Matriz de memoización
+
+    // Caso base: Multiplicación de una sola matriz tiene costo cero
+    for (int i = 0; i < n; i++) {
+        dp[i][i] = 0;
+    }
+
+    // Recorrido por diagonales de la matriz dp
+    for (int diagonal = 1; diagonal < n; diagonal++) {
+        for (int i = 0; i < n - diagonal; i++) {
+            int j = i + diagonal;
+            
+            // Calcular el costo mínimo de multiplicación en la subcadena [i, j]
+            for (int k = i; k < j; k++) {
+                int costo = dp[i][k] + dp[k + 1][j] + dimensiones[i] * dimensiones[k + 1] * dimensiones[j + 1];
+                dp[i][j] = min(dp[i][j], costo);
+            }
+        }
+    }
+
+    // El resultado se encuentra en la esquina superior derecha de la matriz dp
+    return dp[0][n - 1];
+}
+
+int main() {
+    vector<int> dimensiones = {10, 30, 5, 60}; // Dimensiones de las matrices
+
+    int costoMinimo = multiplicacionEncadenada(dimensiones);
+
+    cout << "El costo mínimo de multiplicación encadenada de matrices es: " << costoMinimo << endl;
+
+    return 0;
+}

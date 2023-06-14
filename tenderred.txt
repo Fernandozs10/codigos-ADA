@@ -1,0 +1,115 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+// Estructura para representar una arista
+struct Arista {
+    int origen;
+    int destino;
+    double peso;
+
+    Arista(int o, int d, double p) : origen(o), destino(d), peso(p) {}
+};
+
+// Función de comparación para ordenar las aristas en función de su peso
+bool compararAristas(const Arista& a, const Arista& b) {
+    return a.peso < b.peso;
+}
+
+// Clase para representar un grafo
+class Grafo {
+    int V; // Número de vértices
+    vector<Arista> aristas; // Vector de aristas
+
+public:
+    Grafo(int vertices) : V(vertices) {}
+
+    // Agregar una arista al grafo
+    void agregarArista(int origen, int destino, double peso) {
+        aristas.emplace_back(origen, destino, peso);
+    }
+
+    // Función para encontrar el subconjunto al que pertenece un vértice
+    int encontrarSubconjunto(vector<int>& subconjuntos, int i) {
+        if (subconjuntos[i] == -1)
+            return i;
+        return encontrarSubconjunto(subconjuntos, subconjuntos[i]);
+    }
+
+    // Función para unir dos subconjuntos en uno solo
+    void unirSubconjuntos(vector<int>& subconjuntos, int x, int y) {
+        int xraiz = encontrarSubconjunto(subconjuntos, x);
+        int yraiz = encontrarSubconjunto(subconjuntos, y);
+        subconjuntos[xraiz] = yraiz;
+    }
+
+    // Función que implementa el algoritmo de Kruskal para encontrar el árbol de tendido mínimo
+    vector<Arista> kruskal() {
+        vector<Arista> arbolTendidoMinimo;
+        int aristasAgregadas = 0;
+        int i = 0;
+
+        // Ordenar las aristas en función de su peso
+        sort(aristas.begin(), aristas.end(), compararAristas);
+
+        // Crear un vector para almacenar los subconjuntos de los vértices
+        vector<int> subconjuntos(V, -1);
+
+        while (aristasAgregadas < V - 1 && i < aristas.size()) {
+            // Tomar la siguiente arista de menor peso
+            Arista aristaActual = aristas[i++];
+
+            int x = encontrarSubconjunto(subconjuntos, aristaActual.origen);
+            int y = encontrarSubconjunto(subconjuntos, aristaActual.destino);
+
+            // Si agregar la arista no crea un ciclo, se agrega al árbol de tendido mínimo
+            if (x != y) {
+                arbolTendidoMinimo.push_back(aristaActual);
+                unirSubconjuntos(subconjuntos, x, y);
+                aristasAgregadas++;
+            }
+        }
+
+        return arbolTendidoMinimo;
+    }
+};
+
+int main() {
+    int numCiudades;
+    cout << "Ingrese el número de ciudades: ";
+    cin >> numCiudades;
+
+    Grafo grafo(numCiudades);
+
+    // Ingresar las coordenadas de las ciudades
+    vector<pair<double, double>> coordenadas(numCiudades);
+    for (int i = 0; i < numCiudades; i++) {
+        cout << "Ingrese las coordenadas (x, y) de la ciudad " << i + 1 << ": ";
+        cin >> coordenadas[i].first >> coordenadas[i].second;
+    }
+
+    // Calcular la distancia euclidiana entre todas las ciudades y agregar las aristas al grafo
+    for (int i = 0; i < numCiudades; i++) {
+        for (int j = i + 1; j < numCiudades; j++) {
+            double distancia = sqrt(pow(coordenadas[i].first - coordenadas[j].first, 2) +
+                                    pow(coordenadas[i].second - coordenadas[j].second, 2));
+            grafo.agregarArista(i, j, distancia);
+        }
+    }
+
+    // Aplicar el algoritmo de Kruskal para encontrar el árbol de tendido mínimo
+    vector<Arista> arbolTendidoMinimo = grafo.kruskal();
+
+    // Imprimir las aristas del árbol de tendido mínimo y el coste total
+    double costoTotal = 0.0;
+    cout << "Árbol de tendido mínimo:\n";
+    for (const Arista& arista : arbolTendidoMinimo) {
+        cout << "Ciudad " << arista.origen + 1 << " - Ciudad " << arista.destino + 1 << ", Peso: " << arista.peso << endl;
+        costoTotal += arista.peso;
+    }
+    cout << "Costo total de la red de interconexión: " << costoTotal << endl;
+
+    return 0;
+}

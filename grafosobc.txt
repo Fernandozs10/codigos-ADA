@@ -1,0 +1,46 @@
+#include <iostream>
+#include <list>
+using namespace std;
+
+class Grafo {
+    int numVertices; // Número de vértices del grafo
+    list<int>* adjList; // Lista de adyacencia
+
+public:
+    Grafo(int numVertices) {
+        this->numVertices = numVertices;
+        adjList = new list<int>[numVertices];
+    }
+
+    void agregarArista(int origen, int destino) {
+        adjList[origen].push_back(destino); // Agregar arista de origen a destino
+        adjList[destino].push_back(origen); // Agregar arista de destino a origen (grafo no dirigido)
+    }
+
+    void imprimirGrafo() {
+        for (int i = 0; i < numVertices; i++) {
+            cout << "Vértice " << i << ": ";
+            for (int v : adjList[i]) {
+                cout << v << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+int main() {
+    int numVertices = 5;
+    Grafo grafo(numVertices);
+
+    grafo.agregarArista(0, 1);
+    grafo.agregarArista(0, 4);
+    grafo.agregarArista(1, 2);
+    grafo.agregarArista(1, 3);
+    grafo.agregarArista(1, 4);
+    grafo.agregarArista(2, 3);
+    grafo.agregarArista(3, 4);
+
+    grafo.imprimirGrafo();
+
+    return 0;
+}

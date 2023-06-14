@@ -1,0 +1,80 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+class Grafo {
+    int numVertices; // Número de vértices del grafo
+    vector<vector<pair<int, int>>> adjList; // Lista de adyacencia
+
+public:
+    Grafo(int numVertices) {
+        this->numVertices = numVertices;
+        adjList.resize(numVertices);
+    }
+
+    void agregarArista(int origen, int destino, int peso) {
+        adjList[origen].push_back({destino, peso}); // Agregar arista de origen a destino
+        adjList[destino].push_back({origen, peso}); // Agregar arista de destino a origen (grafo no dirigido)
+    }
+
+    vector<pair<int, int>> prim() {
+        vector<bool> visitado(numVertices, false); // Para mantener el control de los vértices visitados
+        vector<pair<int, int>> mst; // Árbol de expansión mínimo
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq; // Cola de prioridad para seleccionar la arista de menor peso
+
+        int inicio = 0; // Iniciar desde el vértice 0 (puedes cambiarlo si lo deseas)
+
+        // Marcar el primer vértice como visitado e insertar todas sus aristas en la cola de prioridad
+        visitado[inicio] = true;
+        for (const auto& arista : adjList[inicio]) {
+            pq.push({arista.second, arista.first});
+        }
+
+        while (!pq.empty()) {
+            pair<int, int> arista = pq.top(); // Obtener la arista de menor peso de la cola de prioridad
+            pq.pop();
+            
+            int peso = arista.first;
+            int destino = arista.second;
+
+            if (!visitado[destino]) {
+                visitado[destino] = true;
+                mst.push_back({peso, destino});
+
+                // Insertar todas las aristas del vértice destino en la cola de prioridad si no han sido visitadas
+                for (const auto& aristaDestino : adjList[destino]) {
+                    int siguienteDestino = aristaDestino.first;
+                    int siguientePeso = aristaDestino.second;
+                    if (!visitado[siguienteDestino]) {
+                        pq.push({siguientePeso, siguienteDestino});
+                    }
+                }
+            }
+        }
+
+        return mst;
+    }
+};
+
+int main() {
+    int numVertices = 5;
+    Grafo grafo(numVertices);
+
+    grafo.agregarArista(0, 1, 2);
+    grafo.agregarArista(0, 3, 6);
+    grafo.agregarArista(1, 2, 3);
+    grafo.agregarArista(1, 3, 8);
+    grafo.agregarArista(1, 4, 5);
+    grafo.agregarArista(2, 4, 7);
+    grafo.agregarArista(3, 4, 9);
+
+    vector<pair<int, int>> mst = grafo.prim();
+
+    cout << "Árbol de Expansión Mínimo (Prim):" << endl;
+    for (const auto& arista : mst) {
+        cout << arista.first << " - " << arista.second << endl;
+    }
+
+    return 0;
+}

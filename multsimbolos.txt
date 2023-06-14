@@ -1,0 +1,76 @@
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+unordered_map<char, unordered_map<char, char>> tablaMultiplicacion = {
+    {'a', {{'a', 'a'}, {'b', 'b'}, {'c', 'c'}}},
+    {'b', {{'a', 'b'}, {'b', 'a'}, {'c', 'c'}}},
+    {'c', {{'a', 'c'}, {'b', 'c'}, {'c', 'b'}}}
+};
+
+// Función auxiliar para verificar si es posible obtener el valor objetivo
+bool esPosibleObtenerValor(const string& x, char objetivo, int inicio, int fin,
+                          unordered_map<string, bool>& memo) {
+    // Construir una clave única para la configuración actual
+    string clave = to_string(inicio) + "-" + to_string(fin) + "-" + objetivo;
+
+    // Verificar si ya se calculó esta configuración
+    if (memo.find(clave) != memo.end()) {
+        return memo[clave];
+    }
+
+    // Caso base: si solo hay un carácter, verificar si coincide con el objetivo
+    if (inicio == fin) {
+        return x[inicio] == objetivo;
+    }
+
+    // Verificar todas las posibles divisiones de la cadena en dos subcadenas
+    for (int i = inicio; i < fin; i++) {
+        char simboloIzquierda = x[inicio];
+        char simboloDerecha = x[i + 1];
+
+        // Calcular el resultado de la multiplicación de los dos símbolos
+        char resultado = tablaMultiplicacion[simboloIzquierda][simboloDerecha];
+
+        // Verificar si el resultado coincide con el objetivo
+        if (resultado == objetivo) {
+            // Verificar si es posible obtener el valor objetivo en cada subcadena
+            bool izquierda = esPosibleObtenerValor(x, simboloIzquierda, inicio, i, memo);
+            bool derecha = esPosibleObtenerValor(x, simboloDerecha, i + 1, fin, memo);
+
+            // Si es posible obtener el valor objetivo en ambas subcadenas, se puede obtener en la cadena completa
+            if (izquierda && derecha) {
+                memo[clave] = true;
+                return true;
+            }
+        }
+    }
+
+    // No es posible obtener el valor objetivo en esta configuración
+    memo[clave] = false;
+    return false;
+}
+
+// Función principal para verificar si es posible obtener el valor objetivo en la cadena x
+bool esPosibleObtenerValor(const string& x, char objetivo) {
+    int n = x.length();
+    unordered_map<string, bool> memo;
+
+    return esPosibleObtenerValor(x, objetivo, 0, n - 1, memo);
+}
+
+int main() {
+    string x = "abc";
+    char objetivo = 'a';
+
+    bool esPosible = esPosibleObtenerValor(x, objetivo);
+
+    if (esPosible) {
+        cout << "Es posible poner paréntesis en x para obtener el valor " << objetivo << endl;
+    } else {
+        cout << "No es posible poner paréntesis en x para obtener el valor " << objetivo << endl;
+    }
+
+    return 0;
+}

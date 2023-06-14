@@ -1,0 +1,46 @@
+#include <iostream>
+#include <vector>
+#include <unordered_set>
+using namespace std;
+
+struct Arista {
+    int nodo1;
+    int nodo2;
+};
+
+unordered_set<int> obtenerRecubrimiento(const vector<Arista>& aristas) {
+    unordered_set<int> recubrimiento;
+    unordered_set<int> nodosCubiertos;
+
+    for (const auto& arista : aristas) {
+        if (nodosCubiertos.count(arista.nodo1) == 0 && nodosCubiertos.count(arista.nodo2) == 0) {
+            recubrimiento.insert(arista.nodo1);
+            recubrimiento.insert(arista.nodo2);
+            nodosCubiertos.insert(arista.nodo1);
+            nodosCubiertos.insert(arista.nodo2);
+        }
+    }
+
+    return recubrimiento;
+}
+
+int main() {
+    vector<Arista> aristas = {
+        {1, 2},
+        {1, 3},
+        {2, 3},
+        {2, 4},
+        {3, 4},
+        {4, 5}
+    };
+
+    unordered_set<int> recubrimiento = obtenerRecubrimiento(aristas);
+
+    cout << "Recubrimiento de G: ";
+    for (const auto& nodo : recubrimiento) {
+        cout << nodo << " ";
+    }
+    cout << endl;
+
+    return 0;
+}

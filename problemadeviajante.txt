@@ -1,0 +1,57 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+using namespace std;
+
+#define INF numeric_limits<int>::max()
+
+// Función para resolver el problema del viajante de comercio utilizando programación dinámica
+int tsp(vector<vector<int>>& distancias, int n) {
+    // Crear una tabla de programación dinámica de tamaño 2^n x n
+    vector<vector<int>> dp(1 << n, vector<int>(n, INF));
+
+    // Caso base: el recorrido vacío con inicio en la ciudad 0 tiene distancia 0
+    dp[1][0] = 0;
+
+    // Recorrer todos los subconjuntos de ciudades
+    for (int mask = 1; mask < (1 << n); mask++) {
+        for (int i = 0; i < n; i++) {
+            // Verificar si la ciudad i está presente en el subconjunto mask
+            if (mask & (1 << i)) {
+                for (int j = 0; j < n; j++) {
+                    // Verificar si la ciudad j está presente en el subconjunto mask y es diferente de i
+                    if (j != i && (mask & (1 << j))) {
+                        // Actualizar la distancia mínima utilizando la ciudad j como ciudad anterior
+                        dp[mask][i] = min(dp[mask][i], dp[mask ^ (1 << i)][j] + distancias[j][i]);
+                    }
+                }
+            }
+        }
+    }
+
+    // Encontrar la distancia mínima del recorrido completo
+    int minDist = INF;
+    for (int i = 1; i < n; i++) {
+        minDist = min(minDist, dp[(1 << n) - 1][i] + distancias[i][0]);
+    }
+
+    return minDist;
+}
+
+int main() {
+    int n = 4; // Número de ciudades
+
+    // Matriz de distancias entre las ciudades
+    vector<vector<int>> distancias = {
+        {0, 10, 15, 20},
+        {10, 0, 35, 25},
+        {15, 35, 0, 30},
+        {20, 25, 30, 0}
+    };
+
+    int minDist = tsp(distancias, n);
+
+    cout << "Distancia mínima del recorrido: " << minDist << endl;
+
+    return 0;
+}

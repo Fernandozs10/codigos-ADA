@@ -1,0 +1,60 @@
+#include <iostream>
+using namespace std;
+#include <ctime>
+void merge(int* arr, int menor, int mayor, int mitad)
+{
+	int i, j, k, c[100000];
+	i = menor;
+	k = menor;
+	j = mitad + 1;
+	while (i <= mitad && j <= mayor) {
+		if (arr[i] < arr[j]) {
+			c[k] = arr[i];
+			k++;
+			i++;
+		}
+		else {
+			c[k] = arr[j];
+			k++;
+			j++;
+		}
+	}
+	while (i <= mitad) {
+		c[k] = arr[i];
+		k++;
+		i++;
+	}
+	while (j <= mayor) {
+		c[k] = arr[j];
+		k++;
+		j++;
+	}
+	for (i = menor; i < k; i++) {
+		arr[i] = c[i];
+	}
+}
+void merge_sort(int* arr, int menor, int mayor){
+	int medio;
+	if (menor < mayor) {
+		medio = (menor + mayor) / 2;
+		merge_sort(arr, menor, medio);
+		merge_sort(arr, medio + 1, mayor);
+		merge(arr, menor, mayor, medio);
+	}
+}
+
+int main() {
+	const int tamanio = 1000, MAXIMO = 100000;
+	int arreglo[tamanio] = { 0 };
+	int i;
+	for (i = 0; i < tamanio; ++i)
+		arreglo[i] = rand() % MAXIMO;
+
+	unsigned t0, t1;
+	t0 = clock();
+	merge_sort(arreglo, 0, tamanio - 1);
+	t1 = clock();
+	double time = (double(t1 - t0) / CLOCKS_PER_SEC);
+	cout << "Execution Time: " << time << endl;
+	return 0;
+}
